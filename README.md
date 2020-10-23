@@ -22,7 +22,7 @@ To see the status of your altered files you can use:
 ```shell script
 git status
 ```
-To commit your changes and push to the remote repository type the following commands. <i>The "." in `git add` means add all files. Optionally you can instead add files individually `git add /src/main/java/...`</i>
+To commit your changes and push to the remote repository type the following commands. <i>The "." in `git add` means add all files. Optionally you can instead add files individually `git add /assets/js/...`</i>
 ```shell script
 git add .
 git commit -m "<message>"
