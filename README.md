@@ -4,6 +4,9 @@
 
 Attempt to play a Beat Saber clone with hand movements using THREE.js 🎉
 
+## Typings
+Typings is an included VSCode addition to help with autocomplete and intellisense for THREE.js
+
 ## Contributing
 ### Clone repository to local
 ```shell script
