@@ -43,7 +43,7 @@ function playSound(buffer) {
  * Shortcut for playing the main game track:
  * http://localhost/assets/miami_nights.mp3
  */
-function playMainTrack() {    
+function playMainTrack() {
     loadSound("http://localhost/assets/miami_nights.mp3");
     playSound(soundBuffer);
 }
