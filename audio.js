@@ -3,7 +3,7 @@
 var soundBuffer;
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
-var context = new AudioContext();
+var context;
 
 /**
  * Load the sound as a buffer
@@ -29,9 +29,13 @@ function loadSound(url) {
  * @param {string} buffer The buffer to use as a basis for the sound
  */
 function playSound(buffer) {
+    var gainNode = context.createGain(); // Create a gainNode reference.
+    gainNode.gain.value = 0.2; // 20% volume
+    gainNode.connect(context.destination); // Add context to gainNode
+
     var source = context.createBufferSource();
     source.buffer = buffer;
-    source.connect(context.destination);
+    source.connect(gainNode); // connect to the GainNode instead of context destination
     source.start(0);
 }
 
@@ -39,7 +43,7 @@ function playSound(buffer) {
  * Shortcut for playing the main game track:
  * http://localhost/assets/miami_nights.mp3
  */
-function playMainTrack() {
+function playMainTrack() {    
     loadSound("http://localhost/assets/miami_nights.mp3");
     playSound(soundBuffer);
 }
