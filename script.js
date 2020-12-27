@@ -53,16 +53,13 @@ document.getElementById("play").onclick = async function() {
 
 }
 
-var comboIndicator;
-var canvas;
-
 /**
  * Start the game when the user cliks "Play" from the start menu
  */
 function start() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    canvas = document.body.appendChild(renderer.domElement); // Connecting to the canvas
+    let canvas = document.body.appendChild(renderer.domElement); // Connecting to the canvas
     canvas.id = "canvas"; // Set canvas ID for easy identification
 
     const scene = new THREE.Scene();
@@ -111,7 +108,6 @@ function start() {
      */
     async function run() {
         while (true) {
-            combo("Combo: 13");
             if (!cleared) {
                 meshes.forEach(element => {
                     scene.remove(element);
@@ -176,16 +172,6 @@ function start() {
         scene.add(mesh);
     }
 
-    function combo(combo) {
-        var ctx = canvas.getContext("2d");
-        if (gameRunning && ctx != null && typeof ctx !== "undefined") {
-            ctx.font = "30px Arial";
-            ctx.fillText("Hello World", 10, 50);
-        } else {
-            debug("error")
-        }
-    }
-
     /**
      * Move the camera to simulate the boxes moving in
      * the world space and update the THREE.js renderer
@@ -198,12 +184,6 @@ function start() {
             cleared = true;
             camera.position.z = 10;
             cleared = false;
-        }
-
-        if (typeof comboIndicator !== "undefined") {
-            console.log("test");
-            let camPos = camera.position;
-            comboIndicator.position.set(camPos.x, camPos.y, camPos.z + 15);
         }
 
         renderer.render(scene, camera);
