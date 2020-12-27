@@ -1,6 +1,6 @@
 # Notez
 
-## University Project (KF6018 | Computer Graphics and Animation)
+## University Project (Graphics and Animation)
 
 Attempt to play a Beat Saber clone with hand movements using THREE.js 🎉
 

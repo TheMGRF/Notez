@@ -4,11 +4,6 @@ var gameRunning = false;
 
 var clicked = false;
 
-document.onclick = function() {
-    context = new AudioContext();
-    playMainTrack();
-}
-
 shouldRun();
 
 /**
@@ -51,6 +46,27 @@ document.getElementById("play").onclick = async function() {
     combo.style.visibility = "visible";
     combo.style.opacity = 1;
 
+}
+
+/**
+ * Use THREE.js audio loader to play the music track
+ * to the user to avoid browser checks and latency
+ * 
+ * @param {PerspectiveCamera} camera The camera object to play sound to
+ */
+function playMusic(camera) {
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+
+    const sound = new THREE.Audio( listener );
+
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load("assets/miami_nights.mp3", function(buffer) {
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.2);
+        sound.play();
+    });
 }
 
 /**
@@ -101,6 +117,8 @@ function start() {
 
     let cleared = false;
     let meshes = [];
+
+    playMusic(camera);
 
     /**
      * Run the bulk of the game code spawning in boxes and
