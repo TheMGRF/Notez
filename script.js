@@ -1,7 +1,6 @@
 "use strict";
 
 var gameRunning = false;
-
 var clicked = false;
 
 shouldRun();
