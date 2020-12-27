@@ -41,10 +41,39 @@ canvas {
     background: none;
     border: none;
     padding: 15px;
+
+    transition: 1s;
 }
 
 #welcome button:hover {
     background-color: rgba(144, 144, 144, 0.5);
     border-radius: 5px;
     cursor: pointer;
+
+    transition: 1s;
+}
+
+#combo {
+    position: absolute;
+    padding-left: 2%;
+
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 1s, opacity 1s linear;
+}
+
+#titleBox {
+    position: absolute;
+    text-align: center;
+    font-size: 4em;
+    padding: 10% 35% 10% 35%;
+
+    visibility: hidden;
+    opacity: 0;
+
+    transition: visibility 1s, opacity 1s linear;
+}
+
+#titleBox * {
+    line-height: 2px;
 }

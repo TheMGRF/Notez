@@ -33,9 +33,28 @@ document.getElementById("play").onclick = async function() {
     let welcome = document.getElementById("welcome");
     welcome.style.visibility = "hidden";
     welcome.style.opacity = 0;
+
     await sleep(200);
     gameRunning = true;
+
+    await sleep(800);
+    let title = document.getElementById("titleBox");
+    title.style.visibility = "visible";
+    title.style.opacity = 1;
+
+    await sleep(2000);
+    title.style.visibility = "hidden";
+    title.style.opacity = 0;
+
+    await sleep(1000);
+    let combo = document.getElementById("combo");
+    combo.style.visibility = "visible";
+    combo.style.opacity = 1;
+
 }
+
+var comboIndicator;
+var canvas;
 
 /**
  * Start the game when the user cliks "Play" from the start menu
@@ -43,7 +62,8 @@ document.getElementById("play").onclick = async function() {
 function start() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement); // Connecting to the canvas
+    canvas = document.body.appendChild(renderer.domElement); // Connecting to the canvas
+    canvas.id = "canvas"; // Set canvas ID for easy identification
 
     const scene = new THREE.Scene();
     //scene.background = new THREE.Color(0x000000);
@@ -91,6 +111,7 @@ function start() {
      */
     async function run() {
         while (true) {
+            combo("Combo: 13");
             if (!cleared) {
                 meshes.forEach(element => {
                     scene.remove(element);
@@ -155,6 +176,16 @@ function start() {
         scene.add(mesh);
     }
 
+    function combo(combo) {
+        var ctx = canvas.getContext("2d");
+        if (gameRunning && ctx != null && typeof ctx !== "undefined") {
+            ctx.font = "30px Arial";
+            ctx.fillText("Hello World", 10, 50);
+        } else {
+            debug("error")
+        }
+    }
+
     /**
      * Move the camera to simulate the boxes moving in
      * the world space and update the THREE.js renderer
@@ -168,6 +199,13 @@ function start() {
             camera.position.z = 10;
             cleared = false;
         }
+
+        if (typeof comboIndicator !== "undefined") {
+            console.log("test");
+            let camPos = camera.position;
+            comboIndicator.position.set(camPos.x, camPos.y, camPos.z + 15);
+        }
+
         renderer.render(scene, camera);
     }
 
