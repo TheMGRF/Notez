@@ -2,6 +2,7 @@
 
 var gameRunning = false;
 var clicked = false;
+var kinectron = new Kinectron();
 
 shouldRun();
 
@@ -47,6 +48,40 @@ document.getElementById("play").onclick = async function() {
 
 }
 
+
+//Define a function to load local file
+function readTextFile(file, callback) 
+{
+    var rawFile = new XMLHttpRequest();
+    rawFile.overrideMimeType("application/json");
+    rawFile.open("GET", file, true);
+    rawFile.onreadystatechange = function() 
+    {
+        if (rawFile.readyState === 4) 
+        {
+            callback(rawFile.responseText);
+        }
+    }
+    rawFile.send(null);
+}
+
+/**
+ *  Load motion JSON file
+ * JSON variables 
+ * 
+ */
+
+var numJsonFrames = 0;
+var jsonMotion = null;
+
+// Read the JSON file motion.json
+readTextFile("motion.json", function(text)
+{
+   jsonMotion = JSON.parse(text);
+   numJsonFrames = Object.keys(jsonMotion).length;
+}
+);
+
 /**
  * Use THREE.js audio loader to play the music track
  * to the user to avoid browser checks and latency
@@ -70,7 +105,7 @@ function playMusic(camera) {
 
 /**
  * Start the game when the user cliks "Play" from the start menu
- */
+ */2
 function start() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -78,12 +113,12 @@ function start() {
     canvas.id = "canvas"; // Set canvas ID for easy identification
 
     const scene = new THREE.Scene();
-    //scene.background = new THREE.Color(0x000000);
 
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.x = -2;
-    camera.position.y = 4;
-    camera.position.z = 10;
+
+    camera.position.x = -1;
+    camera.position.y = 1.5;
+    camera.position.z = 7;
 
     const lightAmbient = new THREE.AmbientLight(0x666666);
     scene.add(lightAmbient);
@@ -117,6 +152,7 @@ function start() {
     let cleared = false;
     let meshes = [];
 
+
     playMusic(camera);
 
     /**
@@ -131,13 +167,13 @@ function start() {
                 });
                 meshes = [];
 
-                let rand = Math.floor(Math.random() * 4);
+                let rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
                     box(0xFF0000, i, true); // Red (LEFT)
                 }
                 
-                rand = Math.floor(Math.random() * 4);
+                rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
                     box(0x0000FF, i, false); // Blue (RIGHT)
@@ -158,18 +194,34 @@ function start() {
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
     function box(colour, count, side) {
-        let geo = new THREE.BoxGeometry(1, 1, 1);
+        let geo = new THREE.BoxGeometry(0.65, 0.65, 0.65);
         let mat = new THREE.MeshPhongMaterial({ color: colour });
         let mesh = new THREE.Mesh(geo, mat);
         if (side) {
-            mesh.position.x = -6;
+            mesh.position.x = -2;
         }
-        mesh.position.y = 6 * Math.random(5 % count);
-        mesh.position.z = -10;
+        mesh.position.y = 1.5 * Math.random(5 % count);
+        mesh.position.z = -5;
         
         scene.add(mesh);
         meshes.push(mesh);
     }
+
+        const solarSystem = new THREE.Object3D();
+        scene.add(solarSystem);
+
+        const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
+
+        //Create a ball for the left hand
+        const mLH = new THREE.MeshPhongMaterial({color: 0xFF000d}); 
+        const meshLH = new THREE.Mesh(SphereGeometry, mLH);
+
+        //Create a ball for the right hand
+        const mRH = new THREE.MeshPhongMaterial({color: 0x0203e2}); 
+        const meshRH = new THREE.Mesh(SphereGeometry, mRH);
+
+        solarSystem.add(meshLH, meshRH);
+
 
     /**
      * Create the floor object in the world space to
@@ -188,19 +240,63 @@ function start() {
 
         scene.add(mesh);
     }
+    
+    //Create a function to update meshes using motion
+    function getBodies(skeletonFrame)
+    {
+        meshLH.position.x = -2;
+        meshLH.position.y = skeletonFrame.joints[kinectron.HANDLEFT].cameraY;
+        meshLH.position.z = skeletonFrame.joints[kinectron.HANDLEFT].cameraZ;
+        meshRH.position.x = 0;
+        meshRH.position.y = skeletonFrame.joints[kinectron.HANDRIGHT].cameraY;
+        meshRH.position.z = skeletonFrame.joints[kinectron.HANDRIGHT].cameraZ;
+    }
+    
+    var iFrame = 0;
 
     /**
      * Move the camera to simulate the boxes moving in
      * the world space and update the THREE.js renderer
      */
     function animate() {
-        requestAnimationFrame(animate);
-        camera.translateZ(-0.03);
 
+        requestAnimationFrame(animate);
+        iFrame ++;
+        
+        camera.translateZ(-0.03);
+        solarSystem.translateZ(-0.03);
+     
         if (camera.position.z < -10) {
             cleared = true;
             camera.position.z = 10;
             cleared = false;
+        }   
+
+        if (solarSystem.position.z < -10) {
+            cleared = true;
+            solarSystem.position.z = 10;
+            cleared = false;
+        }   
+
+        if(solarSystem.position.z > scene.position.z) {
+            mLH.color.setHex(0xFFFFFF);
+        }
+        else {
+            mLH.color.setHex(0xFF000d);
+        }
+
+        if(solarSystem.position.z > scene.position.z) {
+            mRH.color.setHex(0x000000);
+        }
+        else {
+            mRH.color.setHex(0x0203e2);
+        }
+        
+        
+        if (numJsonFrames > 0)
+        {
+            var iFrameToRender = iFrame % numJsonFrames;
+            getBodies(jsonMotion[iFrameToRender]);
         }
 
         renderer.render(scene, camera);
