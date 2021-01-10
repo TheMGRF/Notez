@@ -48,6 +48,20 @@ document.getElementById("play").onclick = async function() {
 
 }
 
+var credits = document.getElementById("credits-modal");
+
+document.getElementById("credits").onclick = function() {
+    credits.style.display = "block";
+    credits.style.visibility = "visible";
+    credits.style.opacity = "1";
+}
+
+document.getElementById("credits-modal").onclick = function() {
+    credits.style.display = "none";
+    credits.style.visibility = "hidden";
+    credits.style.opacity = "0";
+}
+
 /**
  * Use THREE.js audio loader to play the music track
  * to the user to avoid browser checks and latency
