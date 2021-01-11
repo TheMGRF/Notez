@@ -157,6 +157,8 @@ function start() {
 
     playMusic(camera);
 
+
+    //ARRAY ONLY WORKS IF THE BOXTARGETS ARE IN A FUNCTION, OTHERWISE DOESN'T RESET AT THE END OF THE RUN 
     /**
      * Run the bulk of the game code spawning in boxes and
      * setting world space meshes
@@ -179,7 +181,7 @@ function start() {
                 rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    boxTarget2(0xFF0000, i, false,); // Blue (RIGHT)
+                    boxTarget2(0xFF0000, i, false); // Blue (RIGHT)
                 }
             }
             await sleep(4700); // 4.7 seconds elapsed (blocks behind camera)
@@ -192,7 +194,7 @@ function start() {
     console.log("Done");
 
   
-
+    //IF THIS IS IN THE FUNCTION RUNS IN THE ARRAY BUT CANNOT BE CALLED IN THE ANIMATE FUNCTION 
     /**
      * Create the boxes indicating a beat for the user to hit
      * 
@@ -242,8 +244,8 @@ function start() {
      * Create the joints in the scene to
      * indicate the hands for the interactions
      */
-        const solarSystem = new THREE.Object3D();
-        scene.add(solarSystem);
+        const hands = new THREE.Object3D();
+        scene.add(hands);
 
         const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
 
@@ -255,7 +257,7 @@ function start() {
         const mRH = new THREE.MeshPhongMaterial({color: 0x0203e2}); 
         const meshRH = new THREE.Mesh(SphereGeometry, mRH);
 
-        solarSystem.add(meshLH, meshRH);
+        hands.add(meshLH, meshRH);
 
 
     /**
@@ -269,7 +271,7 @@ function start() {
         mesh.position.x = -6;
         mesh.position.y = -2;
         mesh.position.z = -10;
-        mat.opacity = 0.6;
+        mat.opacity = 0.4;
         
         // TODO: https://stackoverflow.com/questions/19731471/reflective-material-in-three-js
 
@@ -297,59 +299,62 @@ function start() {
 
         requestAnimationFrame(animate);
         
-    //     console.log("Add collision detection 1");
-    // // Collision detection for the first target
-    // var distFromLeftHandToTarget1 = Math.sqrt(
-    //     Math.pow(meshTarget1.position.x-meshLH.position.x, 1.5) + 
-    //     Math.pow(meshTarget1.position.y-meshLH.position.y, 1.5) + 
-    //     Math.pow(meshTarget1.position.z-meshLH.position.z, 1.5)
-    // );
+        //IF THE BOXTARGET1 FUNCTION IS IN A FUNCTION CAN'T CALL IT HERE, NEED SOME VARIANT OF DETECTION
 
-    // var distFromRightHandToTarget1 = Math.sqrt(
-    //     Math.pow(meshTarget1.position.x-meshRH.position.x, 1.5) + 
-    //     Math.pow(meshTarget1.position.y-meshRH.position.y, 1.5) + 
-    //     Math.pow(meshTarget1.position.z-meshRH.position.z, 1.5)
-    // );
+        console.log("Add collision detection 1");
+        // Collision detection for the first target
+        var distFromLeftHandToTarget1 = Math.sqrt(
+        Math.pow(boxTarget1.meshTarget1.position.x-meshLH[kinectron.HANDLEFT].position.x,2) + 
+            Math.pow(boxTarget1.meshTarget1.position.y-meshLH[kinectron.HANDLEFT].position.y,2) + 
+            Math.pow(boxTarget1.meshTarget1.position.z-meshLH[kinectron.HANDLEFT].position.z,2)
+        );
+    
+        var distFromRightHandToTarget1 = Math.sqrt(
+        Math.pow(boxTarget1.meshTarget1.position.x-meshRH[kinectron.HANDRIGHT].position.x,2) + 
+            Math.pow(boxTarget1.meshTarget1.position.y-meshRH[kinectron.HANDRIGHT].position.y,2) + 
+            Math.pow(boxTarget1.meshTarget1.position.z-meshRH[kinectron.HANDRIGHT].position.z,2)
+        );
+        console.log("Add collision detection query");
+        if ((distFromLeftHandToTarget1 < (boxTarget1.meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+            (distFromRightHandToTarget1 < (boxTarget1.meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+        {
+                boxTarget1.meshTarget1.material.color.setHex(0x000033);
+        }
+        else
+        {
+                boxTarget1.meshTarget1.material.color.setHex(0xFF0000);
+        }
+        console.log("Done");
+    
+        // console.log("Add collision detection 2");
+        // // Collision detection for the second target
+        // var distFromLeftHandToTarget2 = Math.sqrt(
+        //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
+        //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
+        //     Math.pow(meshTarget2.position.z-meshRH.position.z)
+        // );
+    
+        // var distFromRightHandToTarget2 = Math.sqrt(
+        //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
+        //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
+        //     Math.pow(meshTarget2.position.z-meshRH.position.z)
+        // );
+    
+        // if ((distFromLeftHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+        //     (distFromRightHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+        // {
+        //         meshTarget2.material.color.setHex(0x000033);
+        // }
+        // else
+        // {
+        //         meshTarget2.material.color.setHex(0x0000FF);
+        // }
+    
+        // console.log("Done");
 
-    // if ((distFromLeftHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-    //     (distFromRightHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-    // {
-    //         meshTarget1.material.color.setHex(0x000033);
-    // }
-    // else
-    // {
-    //         meshTarget1.material.color.setHex(0xFF0000);
-    // }
-    // console.log("Done");
 
-    // console.log("Add collision detection 2");
-    // // Collision detection for the second target
-    // var distFromLeftHandToTarget2 = Math.sqrt(
-    //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
-    //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
-    //     Math.pow(meshTarget2.position.z-meshRH.position.z)
-    // );
-
-    // var distFromRightHandToTarget2 = Math.sqrt(
-    //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
-    //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
-    //     Math.pow(meshTarget2.position.z-meshRH.position.z)
-    // );
-
-    // if ((distFromLeftHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-    //     (distFromRightHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-    // {
-    //         meshTarget2.material.color.setHex(0x000033);
-    // }
-    // else
-    // {
-    //         meshTarget2.material.color.setHex(0x0000FF);
-    // }
-
-    // console.log("Done");
-
-    camera.translateZ(-0.03);
-    solarSystem.translateZ(-0.03);
+        camera.translateZ(-0.03);
+        hands.translateZ(-0.03);
      
         if (camera.position.z < -10) {
             cleared = true;
@@ -357,20 +362,20 @@ function start() {
             cleared = false;
         }   
 
-        if (solarSystem.position.z < -10) {
+        if (hands.position.z < -10) {
             cleared = true;
-            solarSystem.position.z = 10;
+            hands.position.z = 10;
             cleared = false;
         }   
 
-        if(solarSystem.position.z > scene.position.z) {
+        if(hands.position.z > scene.position.z) {
             mLH.color.setHex(0xFFFFFF);
         }
         else {
             mLH.color.setHex(0xFF000d);
         }
 
-        if(solarSystem.position.z > scene.position.z) {
+        if(hands.position.z > scene.position.z) {
             mRH.color.setHex(0x000000);
         }
         else {
@@ -378,6 +383,13 @@ function start() {
         }
 
         
+
+
+            // if(hands.position.y = boxTarget1)
+        // {
+        //     console.log("true");
+        // }
+
         
         // if(solarSystem.position.z > scene.position.z) {
         //     meshTarget1.material.color.setHex(0xFF0000);
