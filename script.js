@@ -49,7 +49,10 @@ document.getElementById("play").onclick = async function() {
 }
 
 
-//Define a function to load local file
+/**
+ * Define a function to load local file into the
+ * application to set up
+ */
 function readTextFile(file, callback) 
 {
     var rawFile = new XMLHttpRequest();
@@ -66,21 +69,20 @@ function readTextFile(file, callback)
 }
 
 /**
- *  Load motion JSON file
- * JSON variables 
+ * Load motion JSON file into the scene
+ * check the JSON variables 
  * 
  */
 
-var numJsonFrames = 0;
-var jsonMotion = null;
+    var numJsonFrames = 0;
+    var jsonMotion = null;
 
-// Read the JSON file motion.json
-readTextFile("motion.json", function(text)
-{
-   jsonMotion = JSON.parse(text);
-   numJsonFrames = Object.keys(jsonMotion).length;
-}
-);
+    readTextFile("motion.json", function(text)
+    {
+    jsonMotion = JSON.parse(text);
+    numJsonFrames = Object.keys(jsonMotion).length;
+    }
+    );
 
 /**
  * Use THREE.js audio loader to play the music track
@@ -105,7 +107,7 @@ function playMusic(camera) {
 
 /**
  * Start the game when the user cliks "Play" from the start menu
- */2
+ */
 function start() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -159,6 +161,7 @@ function start() {
      * Run the bulk of the game code spawning in boxes and
      * setting world space meshes
      */
+    console.log("Run the array");
     async function run() {
         while (true) {
             if (!cleared) {
@@ -170,13 +173,13 @@ function start() {
                 let rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    box(0xFF0000, i, true); // Red (LEFT)
+                    boxTarget1( 0x0000FF,i, true); // Red (LEFT)
                 }
                 
                 rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    box(0x0000FF, i, false); // Blue (RIGHT)
+                    boxTarget2(0xFF0000, i, false,); // Blue (RIGHT)
                 }
             }
             await sleep(4700); // 4.7 seconds elapsed (blocks behind camera)
@@ -186,27 +189,59 @@ function start() {
     floor();
     run();
 
+    console.log("Done");
+
+  
+
     /**
-     * Create a box indicating a beat for the user to hit
+     * Create the boxes indicating a beat for the user to hit
      * 
      * @param {color} colour The colour of the box
      * @param {number} count Help randomise the Y value of the box
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
-    function box(colour, count, side) {
-        let geo = new THREE.BoxGeometry(0.65, 0.65, 0.65);
-        let mat = new THREE.MeshPhongMaterial({ color: colour });
-        let mesh = new THREE.Mesh(geo, mat);
-        if (side) {
-            mesh.position.x = -2;
-        }
-        mesh.position.y = 1.5 * Math.random(5 % count);
-        mesh.position.z = -5;
+
+    function boxTarget1(colour, count, side) {
+        let geoTarget1 = new THREE.SphereGeometry(0.4, 18, 18);
+        let matTarget1 = new THREE.MeshPhongMaterial({ color: colour });
+        let meshTarget1 = new THREE.Mesh(geoTarget1, matTarget1);
         
-        scene.add(mesh);
-        meshes.push(mesh);
+        if (side) {
+            meshTarget1.position.set (0, 1.5 * Math.random(5 % count), -5);;
+        }
+        else 
+        {
+            meshTarget1.position.set (-2, 1.5 * Math.random(5 % count), -5);;
+        }
+        
+        scene.add(meshTarget1);
+        meshes.push(meshTarget1);
     }
 
+
+    function boxTarget2(colour, count, side) {
+
+        let geoTarget2 = new THREE.SphereGeometry(0.4, 18, 18);
+        let matTarget2 = new THREE.MeshPhongMaterial({ color: colour });
+        let meshTarget2 = new THREE.Mesh(geoTarget2, matTarget2);
+
+        if (side) {
+            meshTarget2.position.set (0, 1.5 * Math.random(5 % count), -5);;
+        }
+        else 
+        {
+            meshTarget2.position.set (-2, 1.5 * Math.random(5 % count), -5);;
+        }
+        scene.add(meshTarget2);
+        meshes.push(meshTarget2);
+    }
+
+
+
+    /**
+     * Create the joints in the scene to
+     * indicate the hands for the interactions
+     */
         const solarSystem = new THREE.Object3D();
         scene.add(solarSystem);
 
@@ -261,10 +296,60 @@ function start() {
     function animate() {
 
         requestAnimationFrame(animate);
-        iFrame ++;
         
-        camera.translateZ(-0.03);
-        solarSystem.translateZ(-0.03);
+    //     console.log("Add collision detection 1");
+    // // Collision detection for the first target
+    // var distFromLeftHandToTarget1 = Math.sqrt(
+    //     Math.pow(meshTarget1.position.x-meshLH.position.x, 1.5) + 
+    //     Math.pow(meshTarget1.position.y-meshLH.position.y, 1.5) + 
+    //     Math.pow(meshTarget1.position.z-meshLH.position.z, 1.5)
+    // );
+
+    // var distFromRightHandToTarget1 = Math.sqrt(
+    //     Math.pow(meshTarget1.position.x-meshRH.position.x, 1.5) + 
+    //     Math.pow(meshTarget1.position.y-meshRH.position.y, 1.5) + 
+    //     Math.pow(meshTarget1.position.z-meshRH.position.z, 1.5)
+    // );
+
+    // if ((distFromLeftHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+    //     (distFromRightHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+    // {
+    //         meshTarget1.material.color.setHex(0x000033);
+    // }
+    // else
+    // {
+    //         meshTarget1.material.color.setHex(0xFF0000);
+    // }
+    // console.log("Done");
+
+    // console.log("Add collision detection 2");
+    // // Collision detection for the second target
+    // var distFromLeftHandToTarget2 = Math.sqrt(
+    //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
+    //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
+    //     Math.pow(meshTarget2.position.z-meshRH.position.z)
+    // );
+
+    // var distFromRightHandToTarget2 = Math.sqrt(
+    //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
+    //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
+    //     Math.pow(meshTarget2.position.z-meshRH.position.z)
+    // );
+
+    // if ((distFromLeftHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+    //     (distFromRightHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+    // {
+    //         meshTarget2.material.color.setHex(0x000033);
+    // }
+    // else
+    // {
+    //         meshTarget2.material.color.setHex(0x0000FF);
+    // }
+
+    // console.log("Done");
+
+    camera.translateZ(-0.03);
+    solarSystem.translateZ(-0.03);
      
         if (camera.position.z < -10) {
             cleared = true;
@@ -291,13 +376,47 @@ function start() {
         else {
             mRH.color.setHex(0x0203e2);
         }
+
         
         
+        // if(solarSystem.position.z > scene.position.z) {
+        //     meshTarget1.material.color.setHex(0xFF0000);
+        // }
+        // else {
+        //     meshTarget1.material.color.setHex(0xFF000d);
+        // }
+
+        // if(solarSystem.position.z > scene.position.z) {
+        //     meshTarget2.material.color.setHex(0x000000);
+        // }
+        // else {
+        //     meshTarget2.material.color.setHex(0x0203e2);
+        // }
+
+        // if (solarSystem.position.z > meshTarget1.position.z)
+        // {
+        //  meshTarget1.material.color.setHex(0xFF0000);
+        // }
+        // else
+        // {
+        // meshTarget1.material.color.setHex(0x330000);
+        // }
+        // if (solarSystem.position.z > meshTarget1.position.z)
+        // {
+        //  meshTarget2.material.color.setHex(0x0000FF);
+        // }
+        // else
+        // {
+        // meshTarget2.material.color.setHex(0x000033);
+        // }
+        
+        iFrame ++;
         if (numJsonFrames > 0)
         {
             var iFrameToRender = iFrame % numJsonFrames;
             getBodies(jsonMotion[iFrameToRender]);
         }
+        
 
         renderer.render(scene, camera);
     }
