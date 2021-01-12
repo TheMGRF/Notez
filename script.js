@@ -24,7 +24,7 @@ async function shouldRun() {
  * Detect the user clicking "Play" on the start menu and
  * run the @see start method to begin the game
  */
-document.getElementById("play").onclick = async function() {
+document.getElementById("play").onclick = async function () {
     let welcome = document.getElementById("welcome");
     welcome.style.visibility = "hidden";
     welcome.style.opacity = 0;
@@ -53,15 +53,12 @@ document.getElementById("play").onclick = async function() {
  * Define a function to load local file into the
  * application to set up
  */
-function readTextFile(file, callback) 
-{
+function readTextFile(file, callback) {
     var rawFile = new XMLHttpRequest();
     rawFile.overrideMimeType("application/json");
     rawFile.open("GET", file, true);
-    rawFile.onreadystatechange = function() 
-    {
-        if (rawFile.readyState === 4) 
-        {
+    rawFile.onreadystatechange = function () {
+        if (rawFile.readyState === 4) {
             callback(rawFile.responseText);
         }
     }
@@ -74,15 +71,14 @@ function readTextFile(file, callback)
  * 
  */
 
-    var numJsonFrames = 0;
-    var jsonMotion = null;
+var numJsonFrames = 0;
+var jsonMotion = null;
 
-    readTextFile("motion.json", function(text)
-    {
+readTextFile("motion.json", function (text) {
     jsonMotion = JSON.parse(text);
     numJsonFrames = Object.keys(jsonMotion).length;
-    }
-    );
+}
+);
 
 /**
  * Use THREE.js audio loader to play the music track
@@ -94,10 +90,10 @@ function playMusic(camera) {
     const listener = new THREE.AudioListener();
     camera.add(listener);
 
-    const sound = new THREE.Audio( listener );
+    const sound = new THREE.Audio(listener);
 
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load("assets/miami_nights.mp3", function(buffer) {
+    audioLoader.load("assets/miami_nights.mp3", function (buffer) {
         sound.setBuffer(buffer);
         sound.setLoop(true);
         sound.setVolume(0.2);
@@ -132,7 +128,7 @@ function start() {
     spotLight.position.z = 5;
     spotLight.intensity = 1.0;
     spotLight.penumbra = 0.50;
-    spotLight.angle = Math.PI/6;
+    spotLight.angle = Math.PI / 6;
     scene.add(spotLight);
 
     spotLight.target.position.x = 0;
@@ -140,10 +136,10 @@ function start() {
     spotLight.target.position.z = 0;
     scene.add(spotLight.target);
 
-    const light = new THREE.PointLight( 0xffffff, 1, 100 );
+    const light = new THREE.PointLight(0xffffff, 1, 100);
     light.position.set(100, 10, 0);
     light.castShadow = true; // default false
-    scene.add( light );
+    scene.add(light);
 
     // Set up shadow properties for the light with default values
     light.shadow.mapSize.width = 512;
@@ -175,9 +171,9 @@ function start() {
                 let rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    boxTarget1( 0x0000FF,i, true); // Red (LEFT)
+                    boxTarget1(0x0000FF, i, true); // Red (LEFT)
                 }
-                
+
                 rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
@@ -193,7 +189,7 @@ function start() {
 
     console.log("Done");
 
-  
+
     //IF THIS IS IN THE FUNCTION RUNS IN THE ARRAY BUT CANNOT BE CALLED IN THE ANIMATE FUNCTION 
     /**
      * Create the boxes indicating a beat for the user to hit
@@ -204,35 +200,39 @@ function start() {
      */
 
     function boxTarget1(colour, count, side) {
-        let geoTarget1 = new THREE.SphereGeometry(0.4, 18, 18);
+        let geoTarget1 = new THREE.BoxGeometry(0.55, 0.55, 0.55);
         let matTarget1 = new THREE.MeshPhongMaterial({ color: colour });
         let meshTarget1 = new THREE.Mesh(geoTarget1, matTarget1);
-        
+
         if (side) {
-            meshTarget1.position.set (0, 1.5 * Math.random(5 % count), -5);;
+            meshTarget1.position.set(0, 1 * Math.random(5 % count), -5);;
         }
-        else 
-        {
-            meshTarget1.position.set (-2, 1.5 * Math.random(5 % count), -5);;
+        else {
+            meshTarget1.position.set(-2, 1 * Math.random(5 % count), -5);;
         }
-        
+
         scene.add(meshTarget1);
         meshes.push(meshTarget1);
     }
 
-
+    /**
+ * Create the boxes indicating a beat for the user to hit
+ * 
+ * @param {color} colour The colour of the box
+ * @param {number} count Help randomise the Y value of the box
+ * @param {boolean} side Indicate if the box is a box (BLUE)
+ */
     function boxTarget2(colour, count, side) {
 
-        let geoTarget2 = new THREE.SphereGeometry(0.4, 18, 18);
+        let geoTarget2 = new THREE.BoxGeometry(0.55, 0.55, 0.55);
         let matTarget2 = new THREE.MeshPhongMaterial({ color: colour });
         let meshTarget2 = new THREE.Mesh(geoTarget2, matTarget2);
 
         if (side) {
-            meshTarget2.position.set (0, 1.5 * Math.random(5 % count), -5);;
+            meshTarget2.position.set(-0.15, 1.5 * Math.random(5 % count), -5);;
         }
-        else 
-        {
-            meshTarget2.position.set (-2, 1.5 * Math.random(5 % count), -5);;
+        else {
+            meshTarget2.position.set(-1.75, 1.5 * Math.random(5 % count), -5);;
         }
         scene.add(meshTarget2);
         meshes.push(meshTarget2);
@@ -244,20 +244,21 @@ function start() {
      * Create the joints in the scene to
      * indicate the hands for the interactions
      */
-        const hands = new THREE.Object3D();
-        scene.add(hands);
+    const hands = new THREE.Object3D();
+    scene.add(hands);
 
-        const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
+    const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
 
-        //Create a ball for the left hand
-        const mLH = new THREE.MeshPhongMaterial({color: 0xFF000d}); 
-        const meshLH = new THREE.Mesh(SphereGeometry, mLH);
+    //Create a ball for the left hand
+    const mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
+    const meshLH = new THREE.Mesh(SphereGeometry, mLH);
 
-        //Create a ball for the right hand
-        const mRH = new THREE.MeshPhongMaterial({color: 0x0203e2}); 
-        const meshRH = new THREE.Mesh(SphereGeometry, mRH);
+    //Create a ball for the right hand
+    const mRH = new THREE.MeshPhongMaterial({ color: 0x0203e2 });
+    const meshRH = new THREE.Mesh(SphereGeometry, mRH);
+    hands.position.x = -1.15;
 
-        hands.add(meshLH, meshRH);
+    hands.add(meshLH, meshRH);
 
 
     /**
@@ -271,24 +272,38 @@ function start() {
         mesh.position.x = -6;
         mesh.position.y = -2;
         mesh.position.z = -10;
-        mat.opacity = 0.4;
-        
+        mat.opacity = 0.3;
+
         // TODO: https://stackoverflow.com/questions/19731471/reflective-material-in-three-js
 
         scene.add(mesh);
     }
-    
+
     //Create a function to update meshes using motion
-    function getBodies(skeletonFrame)
-    {
-        meshLH.position.x = -2;
+    function getBodies(skeletonFrame) {
+        meshLH.position.x = skeletonFrame.joints[kinectron.HANDLEFT].cameraX;
         meshLH.position.y = skeletonFrame.joints[kinectron.HANDLEFT].cameraY;
         meshLH.position.z = skeletonFrame.joints[kinectron.HANDLEFT].cameraZ;
-        meshRH.position.x = 0;
+        meshRH.position.x = skeletonFrame.joints[kinectron.HANDRIGHT].cameraX;
         meshRH.position.y = skeletonFrame.joints[kinectron.HANDRIGHT].cameraY;
         meshRH.position.z = skeletonFrame.joints[kinectron.HANDRIGHT].cameraZ;
     }
-    
+
+
+    if (hands.position.z > scene.position.z) {
+        boxTarget1(0x000033, 1, true);
+    }
+    else {
+        boxTarget1(0x0000FF, 1, true);
+    }
+
+    if (hands.position.z > scene.position.z) {
+        boxTarget2(0x330000, 1, false);
+    }
+    else {
+        boxTarget2(0xFF0000, 1, false);
+    }
+
     var iFrame = 0;
 
     /**
@@ -298,33 +313,67 @@ function start() {
     function animate() {
 
         requestAnimationFrame(animate);
-        
-        //IF THE BOXTARGET1 FUNCTION IS IN A FUNCTION CAN'T CALL IT HERE, NEED SOME VARIANT OF DETECTION
 
-        console.log("Add collision detection 1");
-        // Collision detection for the first target
-        var distFromLeftHandToTarget1 = Math.sqrt(
-        Math.pow(boxTarget1.meshTarget1.position.x-meshLH[kinectron.HANDLEFT].position.x,2) + 
-            Math.pow(boxTarget1.meshTarget1.position.y-meshLH[kinectron.HANDLEFT].position.y,2) + 
-            Math.pow(boxTarget1.meshTarget1.position.z-meshLH[kinectron.HANDLEFT].position.z,2)
-        );
+        iFrame++;
+
+        camera.translateZ(-0.03);
+        hands.translateZ(-0.03);
+
+
+        if (camera.position.z < -10) {
+            cleared = true;
+            camera.position.z = 10;
+            cleared = false;
+        }
+
+        if (hands.position.z < -10) {
+            cleared = true;
+            hands.position.z = 10;
+            cleared = false;
+        }
+
+
+        if (hands.position.z > scene.position.z) {
+            mLH.color.setHex(0x330000);
+        }
+        else {
+            mLH.color.setHex(0xFF0000);
+        }
+
+        if (hands.position.z > scene.position.z) {
+            mRH.color.setHex(0x000033);
+        }
+        else {
+            mRH.color.setHex(0x0203e2);
+        }
+
+        
+        // //IF THE boxTarget1 FUNCTION IS IN A FUNCTION CAN'T CALL IT HERE, NEED SOME VARIANT OF DETECTION
+
+        // console.log("Add collision detection 1");
+        // // Collision detection for the first target
+        // var distFromLeftHandToTarget1 = Math.sqrt(
+        // Math.pow(meshTarget1.position.x-meshLH[kinectron.HANDLEFT].position.x,2) + 
+        //     Math.pow(meshTarget1.position.y-meshLH[kinectron.HANDLEFT].position.y,2) + 
+        //     Math.pow(meshTarget1.position.z-meshLH[kinectron.HANDLEFT].position.z,2)
+        // );
     
-        var distFromRightHandToTarget1 = Math.sqrt(
-        Math.pow(boxTarget1.meshTarget1.position.x-meshRH[kinectron.HANDRIGHT].position.x,2) + 
-            Math.pow(boxTarget1.meshTarget1.position.y-meshRH[kinectron.HANDRIGHT].position.y,2) + 
-            Math.pow(boxTarget1.meshTarget1.position.z-meshRH[kinectron.HANDRIGHT].position.z,2)
-        );
-        console.log("Add collision detection query");
-        if ((distFromLeftHandToTarget1 < (boxTarget1.meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-            (distFromRightHandToTarget1 < (boxTarget1.meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-        {
-                boxTarget1.meshTarget1.material.color.setHex(0x000033);
-        }
-        else
-        {
-                boxTarget1.meshTarget1.material.color.setHex(0xFF0000);
-        }
-        console.log("Done");
+        // var distFromRightHandToTarget1 = Math.sqrt(
+        // Math.pow(meshTarget1.position.x-meshRH[kinectron.HANDRIGHT].position.x,2) + 
+        //     Math.pow(meshTarget1.position.y-meshRH[kinectron.HANDRIGHT].position.y,2) + 
+        //     Math.pow(meshTarget1.position.z-meshRH[kinectron.HANDRIGHT].position.z,2)
+        // );
+        // console.log("Add collision detection query");
+        // if ((distFromLeftHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+        //     (distFromRightHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+        // {
+        //         boxTarget1.meshTarget1.material.color.setHex(0x000033);
+        // }
+        // else
+        // {
+        //         boxTarget1.meshTarget1.material.color.setHex(0xFF0000);
+        // }
+        // console.log("Done");
     
         // console.log("Add collision detection 2");
         // // Collision detection for the second target
@@ -353,82 +402,13 @@ function start() {
         // console.log("Done");
 
 
-        camera.translateZ(-0.03);
-        hands.translateZ(-0.03);
-     
-        if (camera.position.z < -10) {
-            cleared = true;
-            camera.position.z = 10;
-            cleared = false;
-        }   
-
-        if (hands.position.z < -10) {
-            cleared = true;
-            hands.position.z = 10;
-            cleared = false;
-        }   
-
-        if(hands.position.z > scene.position.z) {
-            mLH.color.setHex(0xFFFFFF);
-        }
-        else {
-            mLH.color.setHex(0xFF000d);
-        }
-
-        if(hands.position.z > scene.position.z) {
-            mRH.color.setHex(0x000000);
-        }
-        else {
-            mRH.color.setHex(0x0203e2);
-        }
-
-        
 
 
-            // if(hands.position.y = boxTarget1)
-        // {
-        //     console.log("true");
-        // }
-
-        
-        // if(solarSystem.position.z > scene.position.z) {
-        //     meshTarget1.material.color.setHex(0xFF0000);
-        // }
-        // else {
-        //     meshTarget1.material.color.setHex(0xFF000d);
-        // }
-
-        // if(solarSystem.position.z > scene.position.z) {
-        //     meshTarget2.material.color.setHex(0x000000);
-        // }
-        // else {
-        //     meshTarget2.material.color.setHex(0x0203e2);
-        // }
-
-        // if (solarSystem.position.z > meshTarget1.position.z)
-        // {
-        //  meshTarget1.material.color.setHex(0xFF0000);
-        // }
-        // else
-        // {
-        // meshTarget1.material.color.setHex(0x330000);
-        // }
-        // if (solarSystem.position.z > meshTarget1.position.z)
-        // {
-        //  meshTarget2.material.color.setHex(0x0000FF);
-        // }
-        // else
-        // {
-        // meshTarget2.material.color.setHex(0x000033);
-        // }
-        
-        iFrame ++;
-        if (numJsonFrames > 0)
-        {
+        if (numJsonFrames > 0) {
             var iFrameToRender = iFrame % numJsonFrames;
             getBodies(jsonMotion[iFrameToRender]);
         }
-        
+
 
         renderer.render(scene, camera);
     }
