@@ -2,7 +2,10 @@
 
 var gameRunning = false;
 var clicked = false;
+var points = 0;
 var kinectron = new Kinectron();
+
+var pointElement = document.getElementById("points");
 
 shouldRun();
 
@@ -19,7 +22,7 @@ async function shouldRun() {
         await sleep(800);
     }
 }
-
+    
 /**
  * Detect the user clicking "Play" on the start menu and
  * run the @see start method to begin the game
@@ -42,10 +45,9 @@ document.getElementById("play").onclick = async function () {
     title.style.opacity = 0;
 
     await sleep(1000);
-    let combo = document.getElementById("combo");
-    combo.style.visibility = "visible";
-    combo.style.opacity = 1;
-
+    let score = document.getElementById("points");
+    score.style.visibility = "visible";
+    score.style.opacity = 1;
 }
 
 
@@ -101,6 +103,9 @@ function playMusic(camera) {
     });
 }
 
+var box1 = null;
+var box2 = null;
+
 /**
  * Start the game when the user cliks "Play" from the start menu
  */
@@ -153,8 +158,23 @@ function start() {
 
     playMusic(camera);
 
+    // Create the joints in the scene to indicate the hands for the interactions 
+    const hands = new THREE.Object3D();
+    scene.add(hands);
 
-    //ARRAY ONLY WORKS IF THE BOXTARGETS ARE IN A FUNCTION, OTHERWISE DOESN'T RESET AT THE END OF THE RUN 
+    const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
+
+    // Create a ball for the left hand
+    const mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
+    const meshLH = new THREE.Mesh(SphereGeometry, mLH);
+
+    // Create a ball for the right hand
+    const mRH = new THREE.MeshPhongMaterial({ color: 0x0203e2 });
+    const meshRH = new THREE.Mesh(SphereGeometry, mRH);
+    hands.position.x = -1.15;
+
+    hands.add(meshLH, meshRH);
+
     /**
      * Run the bulk of the game code spawning in boxes and
      * setting world space meshes
@@ -171,13 +191,13 @@ function start() {
                 let rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    boxTarget1(0x0000FF, i, true); // Red (LEFT)
+                    box1 = box(0x0000FF, i, true); // Red (LEFT)
                 }
 
                 rand = Math.floor(Math.random() * 2);
                 rand = rand <= 0 ? 1 : rand;
                 for (let i = 0; i < rand; i++) {
-                    boxTarget2(0xFF0000, i, false); // Blue (RIGHT)
+                    box2 = box(0xFF0000, i, false); // Blue (RIGHT)
                 }
             }
             await sleep(4700); // 4.7 seconds elapsed (blocks behind camera)
@@ -189,8 +209,6 @@ function start() {
 
     console.log("Done");
 
-
-    //IF THIS IS IN THE FUNCTION RUNS IN THE ARRAY BUT CANNOT BE CALLED IN THE ANIMATE FUNCTION 
     /**
      * Create the boxes indicating a beat for the user to hit
      * 
@@ -198,68 +216,22 @@ function start() {
      * @param {number} count Help randomise the Y value of the box
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
-
-    function boxTarget1(colour, count, side) {
-        let geoTarget1 = new THREE.BoxGeometry(0.55, 0.55, 0.55);
-        let matTarget1 = new THREE.MeshPhongMaterial({ color: colour });
-        let meshTarget1 = new THREE.Mesh(geoTarget1, matTarget1);
-
-        if (side) {
-            meshTarget1.position.set(0, 1 * Math.random(5 % count), -5);;
-        }
-        else {
-            meshTarget1.position.set(-2, 1 * Math.random(5 % count), -5);;
-        }
-
-        scene.add(meshTarget1);
-        meshes.push(meshTarget1);
-    }
-
-    /**
- * Create the boxes indicating a beat for the user to hit
- * 
- * @param {color} colour The colour of the box
- * @param {number} count Help randomise the Y value of the box
- * @param {boolean} side Indicate if the box is a box (BLUE)
- */
-    function boxTarget2(colour, count, side) {
-
-        let geoTarget2 = new THREE.BoxGeometry(0.55, 0.55, 0.55);
-        let matTarget2 = new THREE.MeshPhongMaterial({ color: colour });
-        let meshTarget2 = new THREE.Mesh(geoTarget2, matTarget2);
+    function box(colour, count, side) {
+        let geo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+        let mat = new THREE.MeshPhongMaterial({ color: colour });
+        let target = new THREE.Mesh(geo, mat);
 
         if (side) {
-            meshTarget2.position.set(-0.15, 1.5 * Math.random(5 % count), -5);;
+            target.position.set(0, 1 * Math.random(5 % count), -5);;
+        } else {
+            target.position.set(-2, 1 * Math.random(5 % count), -5);;
         }
-        else {
-            meshTarget2.position.set(-1.75, 1.5 * Math.random(5 % count), -5);;
-        }
-        scene.add(meshTarget2);
-        meshes.push(meshTarget2);
+
+        scene.add(target);
+        meshes.push(target);
+
+        return target;
     }
-
-
-
-    /**
-     * Create the joints in the scene to
-     * indicate the hands for the interactions
-     */
-    const hands = new THREE.Object3D();
-    scene.add(hands);
-
-    const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
-
-    //Create a ball for the left hand
-    const mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
-    const meshLH = new THREE.Mesh(SphereGeometry, mLH);
-
-    //Create a ball for the right hand
-    const mRH = new THREE.MeshPhongMaterial({ color: 0x0203e2 });
-    const meshRH = new THREE.Mesh(SphereGeometry, mRH);
-    hands.position.x = -1.15;
-
-    hands.add(meshLH, meshRH);
-
 
     /**
      * Create the floor object in the world space to
@@ -279,7 +251,9 @@ function start() {
         scene.add(mesh);
     }
 
-    //Create a function to update meshes using motion
+    /**
+     * Create a function to update meshes using motion
+     */
     function getBodies(skeletonFrame) {
         meshLH.position.x = skeletonFrame.joints[kinectron.HANDLEFT].cameraX;
         meshLH.position.y = skeletonFrame.joints[kinectron.HANDLEFT].cameraY;
@@ -289,21 +263,6 @@ function start() {
         meshRH.position.z = skeletonFrame.joints[kinectron.HANDRIGHT].cameraZ;
     }
 
-
-    if (hands.position.z > scene.position.z) {
-        boxTarget1(0x000033, 1, true);
-    }
-    else {
-        boxTarget1(0x0000FF, 1, true);
-    }
-
-    if (hands.position.z > scene.position.z) {
-        boxTarget2(0x330000, 1, false);
-    }
-    else {
-        boxTarget2(0xFF0000, 1, false);
-    }
-
     var iFrame = 0;
 
     /**
@@ -311,14 +270,12 @@ function start() {
      * the world space and update the THREE.js renderer
      */
     function animate() {
-
         requestAnimationFrame(animate);
 
         iFrame++;
 
         camera.translateZ(-0.03);
         hands.translateZ(-0.03);
-
 
         if (camera.position.z < -10) {
             cleared = true;
@@ -332,83 +289,32 @@ function start() {
             cleared = false;
         }
 
-
+        // TODO: Check to see if left or right side block was interacted with
+        // TODO: Maybe slighty redo points when this is done ^
         if (hands.position.z > scene.position.z) {
             mLH.color.setHex(0x330000);
-        }
-        else {
+            box2.material.color.setHex(0x330000);
+            points += 0.003;
+        } else {
             mLH.color.setHex(0xFF0000);
+            box2.material.color.setHex(0xFF0000);
         }
 
         if (hands.position.z > scene.position.z) {
             mRH.color.setHex(0x000033);
-        }
-        else {
+            box1.material.color.setHex(0x000033);
+            points += 0.003;
+        } else {
             mRH.color.setHex(0x0203e2);
+            box1.material.color.setHex(0x0203e2);
         }
 
-        
-        // //IF THE boxTarget1 FUNCTION IS IN A FUNCTION CAN'T CALL IT HERE, NEED SOME VARIANT OF DETECTION
-
-        // console.log("Add collision detection 1");
-        // // Collision detection for the first target
-        // var distFromLeftHandToTarget1 = Math.sqrt(
-        // Math.pow(meshTarget1.position.x-meshLH[kinectron.HANDLEFT].position.x,2) + 
-        //     Math.pow(meshTarget1.position.y-meshLH[kinectron.HANDLEFT].position.y,2) + 
-        //     Math.pow(meshTarget1.position.z-meshLH[kinectron.HANDLEFT].position.z,2)
-        // );
-    
-        // var distFromRightHandToTarget1 = Math.sqrt(
-        // Math.pow(meshTarget1.position.x-meshRH[kinectron.HANDRIGHT].position.x,2) + 
-        //     Math.pow(meshTarget1.position.y-meshRH[kinectron.HANDRIGHT].position.y,2) + 
-        //     Math.pow(meshTarget1.position.z-meshRH[kinectron.HANDRIGHT].position.z,2)
-        // );
-        // console.log("Add collision detection query");
-        // if ((distFromLeftHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-        //     (distFromRightHandToTarget1 < (meshTarget1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-        // {
-        //         boxTarget1.meshTarget1.material.color.setHex(0x000033);
-        // }
-        // else
-        // {
-        //         boxTarget1.meshTarget1.material.color.setHex(0xFF0000);
-        // }
-        // console.log("Done");
-    
-        // console.log("Add collision detection 2");
-        // // Collision detection for the second target
-        // var distFromLeftHandToTarget2 = Math.sqrt(
-        //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
-        //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
-        //     Math.pow(meshTarget2.position.z-meshRH.position.z)
-        // );
-    
-        // var distFromRightHandToTarget2 = Math.sqrt(
-        //     Math.pow(meshTarget2.position.x-meshRH.position.x) + 
-        //     Math.pow(meshTarget2.position.y-meshRH.position.y) + 
-        //     Math.pow(meshTarget2.position.z-meshRH.position.z)
-        // );
-    
-        // if ((distFromLeftHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-        //     (distFromRightHandToTarget2 < (meshTarget2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-        // {
-        //         meshTarget2.material.color.setHex(0x000033);
-        // }
-        // else
-        // {
-        //         meshTarget2.material.color.setHex(0x0000FF);
-        // }
-    
-        // console.log("Done");
-
-
-
+        pointElement.innerHTML = "Points: " + parseInt(points);
 
         if (numJsonFrames > 0) {
             var iFrameToRender = iFrame % numJsonFrames;
             getBodies(jsonMotion[iFrameToRender]);
         }
-
 
         renderer.render(scene, camera);
     }
