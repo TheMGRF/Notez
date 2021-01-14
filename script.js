@@ -112,25 +112,24 @@ var meshRH = null;
  * @param {a} a one of the boxes used to interact 
  * @param {d} d the other box to interact
  */
-function checkTouching(a, d) {
-    let b1 = a.position.y - a.geometry.parameters.height / 2;
-    let t1 = a.position.y + a.geometry.parameters.height / 2;
-    let r1 = a.position.x + a.geometry.parameters.width / 2;
-    let l1 = a.position.x - a.geometry.parameters.width / 2;
-    let f1 = a.position.z - a.geometry.parameters.depth / 2;
-    let B1 = a.position.z + a.geometry.parameters.depth / 2;
-    let b2 = d.position.y - d.geometry.parameters.height / 2;
-    let t2 = d.position.y + d.geometry.parameters.height / 2;
-    let r2 = d.position.x + d.geometry.parameters.width / 2;
-    let l2 = d.position.x - d.geometry.parameters.width / 2;
-    let f2 = d.position.z - d.geometry.parameters.depth / 2;
-    let B2 = d.position.z + d.geometry.parameters.depth / 2;
+// function checkTouching(a, d) {
+//     let b1 = a.position.y - a.geometry.parameters.height / 2;
+//     let t1 = a.position.y + a.geometry.parameters.height / 2;
+//     let r1 = a.position.x + a.geometry.parameters.width / 2;
+//     let l1 = a.position.x - a.geometry.parameters.width / 2;
+//     let f1 = a.position.z - a.geometry.parameters.depth / 2;
+//     let B1 = a.position.z + a.geometry.parameters.depth / 2;
+//     let b2 = d.position.y - d.geometry.parameters.height / 2;
+//     let t2 = d.position.y + d.geometry.parameters.height / 2;
+//     let r2 = d.position.x + d.geometry.parameters.width / 2;
+//     let l2 = d.position.x - d.geometry.parameters.width / 2;
+//     let f2 = d.position.z - d.geometry.parameters.depth / 2;
+//     let B2 = d.position.z + d.geometry.parameters.depth / 2;
 
-    let bool = !(t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2);
+//     let bool = !(t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2);
 
-    console.log(bool);
-    return bool;
-}
+//     return bool;
+// }
 
 /**
  * Start the game when the user cliks "Play" from the start menu
@@ -186,7 +185,7 @@ function start() {
     // Create the joints in the scene to indicate the hands for the interactions 
     hands = new THREE.Object3D();
 
-    var SphereGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+    var SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
 
     // Create a ball for the left hand
     var mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
@@ -241,7 +240,7 @@ function start() {
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
     function box(colour, count, side) {
-        let geo = new THREE.BoxGeometry(0.65, 0.65, 0.65);
+        let geo = new THREE.SphereGeometry(0.45, 18, 18);
         let mat = new THREE.MeshPhongMaterial({ color: colour });
         let target = new THREE.Mesh(geo, mat);
 
@@ -311,17 +310,62 @@ function start() {
             cleared = false;
         }
 
-        if (checkTouching(meshRH, box1)) {
-            meshRH.material.color.setHex(0xFFFFFF);
-            box1.material.color.setHex(0xFFFFFF);
+                // Collision detection for the first target
+        /**
+         * doesn't actually recognise the mLH or meshLH (and RH) in console so that may be why, recognises the radius of the targets but not the hands
+         */
+        var distLHTarget1 = Math.sqrt(
+        Math.pow(box1.position.x-meshLH.position.x,2) + 
+            Math.pow(box1.position.y-meshLH.position.y,2) + 
+            Math.pow(box1.position.z-meshLH.position.z,2)
+        );
+
+        var distRHTarget1 = Math.sqrt(
+        Math.pow(box1.position.x-meshRH.position.x,2) + 
+            Math.pow(box1.position.y-meshRH.position.y,2) + 
+            Math.pow(box1.position.z-meshRH.position.z,2)
+        );
+
+        if ((distLHTarget1 < (box1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+            (distRHTarget1 < (box1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+        {
+            meshRH.material.color.setHex(0x000033);
+            box1.material.color.setHex(0x000033);
             points += 1;
         }
 
-        if (checkTouching(meshLH, box2)) {
-            meshLH.material.color.setHex(0xFFFFFF);
-            box2.material.color.setHex(0xFFFFFF);
-            points += 1;
+        // Collision detection for the second target
+        var distLHTarget2 = Math.sqrt(
+        Math.pow(box2.position.x-meshLH.position.x,2) + 
+            Math.pow(box2.position.y-meshLH.position.y,2) + 
+            Math.pow(box2.position.z-meshLH.position.z,2)
+            );
+
+        var distRHTarget2 = Math.sqrt(
+        Math.pow(box2.position.x-meshRH.position.x,2) + 
+            Math.pow(box2.position.y-meshRH.position.y,2) + 
+            Math.pow(box2.position.z-meshRH.position.z,2)
+            );
+
+        if ((distLHTarget2 < (box2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
+            (distRHTarget2 < (box2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
+        {
+                meshLH.material.color.setHex(0x330000);
+                box2.material.color.setHex(0x330000);
+                points += 1;
         }
+
+        // if (checkTouching(box1, meshRH)) {
+        //     meshRH.material.color.setHex(0xFFFFFF);
+        //     box1.material.color.setHex(0xFFFFFF);
+        //     points += 1;
+        // }
+
+        // if (checkTouching(meshLH, box2)) {
+        //     meshLH.material.color.setHex(0xFFFFFF);
+        //     box2.material.color.setHex(0xFFFFFF);
+        //     points += 1;
+        // }
 
         pointElement.innerHTML = "Points: " + parseInt(points);
 
