@@ -50,12 +50,18 @@ document.getElementById("play").onclick = async function() {
 
 var credits = document.getElementById("credits-modal");
 
+/**
+ * Detect clicking of the credits button to show authors
+ */
 document.getElementById("credits").onclick = function() {
     credits.style.display = "block";
     credits.style.visibility = "visible";
     credits.style.opacity = "1";
 }
 
+/**
+ * Detect closing of credits modal to show game
+ */
 document.getElementById("credits-modal").onclick = function() {
     credits.style.display = "none";
     credits.style.visibility = "hidden";

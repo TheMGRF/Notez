@@ -48,6 +48,13 @@ function playMainTrack() {
     playSound(soundBuffer);
 }
 
+/**
+ * Get the highlight "peaks" of the cuurrent track to
+ * spawn associated blocks.
+ * 
+ * @param {array} data The data from the track
+ * @param {number} threshold The peak threshold to identify
+ */
 function getPeaks(data, threshold) {
     var peaks = [];
     var length = data.length;
@@ -63,6 +70,12 @@ function getPeaks(data, threshold) {
 
 var filteredBuffer;
 
+/**
+ * Functional test method to check track playing
+ * and low pass filtering.
+ * 
+ * @param {SoundBuffer} buffer The sound buffer of the track
+ */
 function test(buffer) {
     // Create offline context
     var offlineContext = new OfflineAudioContext(1, buffer.length, buffer.sampleRate);
