@@ -22,7 +22,7 @@ async function shouldRun() {
         await sleep(800);
     }
 }
-    
+
 /**
  * Detect the user clicking "Play" on the start menu and
  * run the @see start method to begin the game
@@ -105,6 +105,11 @@ function playMusic(camera) {
 
 var box1 = null;
 var box2 = null;
+var hands = null;
+var meshLH = null;
+var meshRH = null;
+
+
 
 /**
  * Start the game when the user cliks "Play" from the start menu
@@ -159,27 +164,30 @@ function start() {
     playMusic(camera);
 
     // Create the joints in the scene to indicate the hands for the interactions 
-    const hands = new THREE.Object3D();
-    scene.add(hands);
 
-    const SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
+    hands = new THREE.Object3D();
+ 
+    var SphereGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 
     // Create a ball for the left hand
-    const mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
-    const meshLH = new THREE.Mesh(SphereGeometry, mLH);
+    var mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
+    meshLH = new THREE.Mesh(SphereGeometry, mLH);
 
     // Create a ball for the right hand
-    const mRH = new THREE.MeshPhongMaterial({ color: 0x0203e2 });
-    const meshRH = new THREE.Mesh(SphereGeometry, mRH);
-    hands.position.x = -1.15;
+    var mRH = new THREE.MeshPhongMaterial({ color: 0x0203e2 });
+    meshRH = new THREE.Mesh(SphereGeometry, mRH);
 
+    hands.position.x = -1.2;
     hands.add(meshLH, meshRH);
+
+
+    scene.add(hands);
 
     /**
      * Run the bulk of the game code spawning in boxes and
      * setting world space meshes
      */
-    console.log("Run the array");
+
     async function run() {
         while (true) {
             if (!cleared) {
@@ -206,8 +214,8 @@ function start() {
 
     floor();
     run();
+    
 
-    console.log("Done");
 
     /**
      * Create the boxes indicating a beat for the user to hit
@@ -217,14 +225,14 @@ function start() {
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
     function box(colour, count, side) {
-        let geo = new THREE.BoxGeometry(0.55, 0.55, 0.55);
+        let geo = new THREE.BoxGeometry(0.65, 0.65, 0.65);
         let mat = new THREE.MeshPhongMaterial({ color: colour });
         let target = new THREE.Mesh(geo, mat);
 
         if (side) {
-            target.position.set(0, 1 * Math.random(5 % count), -5);;
+            target.position.set(0, 1 * Math.random(5 % count), -5);
         } else {
-            target.position.set(-2, 1 * Math.random(5 % count), -5);;
+            target.position.set(-1.9, 1 * Math.random(5 % count), -5);
         }
 
         scene.add(target);
@@ -232,6 +240,31 @@ function start() {
 
         return target;
     }
+
+
+    /**
+     * this is the box detection we'd seen online 
+     * @param {a} a one of the boxes used to interact 
+     * @param {d} d the other box to interact
+     */
+    function checkTouching(a, d) {
+        let b1 = a.position.y - a.geometry.parameters.height / 2;
+        let t1 = a.position.y + a.geometry.parameters.height / 2;
+        let r1 = a.position.x + a.geometry.parameters.width / 2;
+        let l1 = a.position.x - a.geometry.parameters.width / 2;
+        let f1 = a.position.z - a.geometry.parameters.depth / 2;
+        let B1 = a.position.z + a.geometry.parameters.depth / 2;
+        let b2 = d.position.y - d.geometry.parameters.height / 2;
+        let t2 = d.position.y + d.geometry.parameters.height / 2;
+        let r2 = d.position.x + d.geometry.parameters.width / 2;
+        let l2 = d.position.x - d.geometry.parameters.width / 2;
+        let f2 = d.position.z - d.geometry.parameters.depth / 2;
+        let B2 = d.position.z + d.geometry.parameters.depth / 2;
+        if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
+            return false;
+        }
+        return true;
+    }  
 
     /**
      * Create the floor object in the world space to
@@ -263,6 +296,8 @@ function start() {
         meshRH.position.z = skeletonFrame.joints[kinectron.HANDRIGHT].cameraZ;
     }
 
+  
+
     var iFrame = 0;
 
     /**
@@ -271,8 +306,6 @@ function start() {
      */
     function animate() {
         requestAnimationFrame(animate);
-
-        iFrame++;
 
         camera.translateZ(-0.03);
         hands.translateZ(-0.03);
@@ -289,27 +322,15 @@ function start() {
             cleared = false;
         }
 
-        // TODO: Check to see if left or right side block was interacted with
-        // TODO: Maybe slighty redo points when this is done ^
-        if (hands.position.z > scene.position.z) {
-            mLH.color.setHex(0x330000);
-            box2.material.color.setHex(0x330000);
-            points += 0.003;
-        } else {
-            mLH.color.setHex(0xFF0000);
-            box2.material.color.setHex(0xFF0000);
-        }
-
-        if (hands.position.z > scene.position.z) {
-            mRH.color.setHex(0x000033);
-            box1.material.color.setHex(0x000033);
-            points += 0.003;
-        } else {
-            mRH.color.setHex(0x0203e2);
-            box1.material.color.setHex(0x0203e2);
+        if (checkTouching(meshRH,box1)) {
+            meshRH.material.color.setHex(0xFFFFFF);
+            box1.material.color.setHex(0xFFFFFF);
+            points += 1;
         }
 
         pointElement.innerHTML = "Points: " + parseInt(points);
+
+        iFrame++;
 
         if (numJsonFrames > 0) {
             var iFrameToRender = iFrame % numJsonFrames;
