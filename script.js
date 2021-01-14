@@ -6,7 +6,7 @@ var clicked = false;
 var points = 0;
 var kinectron = new Kinectron();
 
-var pointElement = document.getElementById("points");
+var pointElement = document.getElementById("combo");
 
 shouldRun();
 
