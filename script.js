@@ -107,10 +107,8 @@ var meshLH = null;
 var meshRH = null;
 
 /**
- * this is the box detection we'd seen online
+ * TODO: Collision detection function to check if the blocks interact with each other
  * 
- * @param {a} a one of the boxes used to interact 
- * @param {d} d the other box to interact
  */
 // function checkTouching(a, d) {
 //     let b1 = a.position.y - a.geometry.parameters.height / 2;
@@ -185,7 +183,7 @@ function start() {
     // Create the joints in the scene to indicate the hands for the interactions 
     hands = new THREE.Object3D();
 
-    var SphereGeometry = new THREE.SphereGeometry(0.1, 18, 18);
+    var SphereGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 
     // Create a ball for the left hand
     var mLH = new THREE.MeshPhongMaterial({ color: 0xFF000d });
@@ -240,7 +238,7 @@ function start() {
      * @param {boolean} side Indicate if the box is a "side" box (RED)
      */
     function box(colour, count, side) {
-        let geo = new THREE.SphereGeometry(0.45, 18, 18);
+        let geo = new THREE.BoxGeometry(0.65, 0.65, 0.65);
         let mat = new THREE.MeshPhongMaterial({ color: colour });
         let target = new THREE.Mesh(geo, mat);
 
@@ -310,54 +308,31 @@ function start() {
             cleared = false;
         }
 
-                // Collision detection for the first target
-        /**
-         * doesn't actually recognise the mLH or meshLH (and RH) in console so that may be why, recognises the radius of the targets but not the hands
-         */
-        var distLHTarget1 = Math.sqrt(
-        Math.pow(box1.position.x-meshLH.position.x,2) + 
-            Math.pow(box1.position.y-meshLH.position.y,2) + 
-            Math.pow(box1.position.z-meshLH.position.z,2)
-        );
+        // TODO: Check to see if left or right side block was interacted with
+        // TODO: Maybe slighty redo points when this is done ^
+        if (hands.position.z > scene.position.z) {
+            mLH.color.setHex(0x330000);
+            box2.material.color.setHex(0x330000);
+            points += 0.003;
+        } else {
+            mLH.color.setHex(0xFF0000);
+            box2.material.color.setHex(0xFF0000);
+        }
 
-        var distRHTarget1 = Math.sqrt(
-        Math.pow(box1.position.x-meshRH.position.x,2) + 
-            Math.pow(box1.position.y-meshRH.position.y,2) + 
-            Math.pow(box1.position.z-meshRH.position.z,2)
-        );
-
-        if ((distLHTarget1 < (box1.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-            (distRHTarget1 < (box1.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-        {
-            meshRH.material.color.setHex(0x000033);
+        if (hands.position.z > scene.position.z) {
+            mRH.color.setHex(0x000033);
             box1.material.color.setHex(0x000033);
-            points += 1;
+            points += 0.003;
+        } else {
+            mRH.color.setHex(0x0203e2);
+            box1.material.color.setHex(0x0203e2);
         }
 
-        // Collision detection for the second target
-        var distLHTarget2 = Math.sqrt(
-        Math.pow(box2.position.x-meshLH.position.x,2) + 
-            Math.pow(box2.position.y-meshLH.position.y,2) + 
-            Math.pow(box2.position.z-meshLH.position.z,2)
-            );
 
-        var distRHTarget2 = Math.sqrt(
-        Math.pow(box2.position.x-meshRH.position.x,2) + 
-            Math.pow(box2.position.y-meshRH.position.y,2) + 
-            Math.pow(box2.position.z-meshRH.position.z,2)
-            );
-
-        if ((distLHTarget2 < (box2.geometry.parameters.radius + meshLH.geometry.parameters.radius)) ||
-            (distRHTarget2 < (box2.geometry.parameters.radius + meshRH.geometry.parameters.radius)))
-        {
-                meshLH.material.color.setHex(0x330000);
-                box2.material.color.setHex(0x330000);
-                points += 1;
-        }
-
-        // if (checkTouching(box1, meshRH)) {
+        //TODO: Input the collision detection for the blocks
+        // if (checkTouching(meshLH, box1)) {
         //     meshRH.material.color.setHex(0xFFFFFF);
-        //     box1.material.color.setHex(0xFFFFFF);
+        //     meshLH.material.color.setHex(0xFFFFFF);
         //     points += 1;
         // }
 
@@ -366,7 +341,6 @@ function start() {
         //     box2.material.color.setHex(0xFFFFFF);
         //     points += 1;
         // }
-
         pointElement.innerHTML = "Points: " + parseInt(points);
 
         iFrame++;
