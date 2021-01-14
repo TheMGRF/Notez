@@ -125,10 +125,11 @@ function checkTouching(a, d) {
     let l2 = d.position.x - d.geometry.parameters.width / 2;
     let f2 = d.position.z - d.geometry.parameters.depth / 2;
     let B2 = d.position.z + d.geometry.parameters.depth / 2;
-    if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
-        return false;
-    }
-    return true;
+
+    let bool = !(t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2);
+
+    console.log(bool);
+    return bool;
 }
 
 /**
@@ -313,6 +314,12 @@ function start() {
         if (checkTouching(meshRH, box1)) {
             meshRH.material.color.setHex(0xFFFFFF);
             box1.material.color.setHex(0xFFFFFF);
+            points += 1;
+        }
+
+        if (checkTouching(meshLH, box2)) {
+            meshLH.material.color.setHex(0xFFFFFF);
+            box2.material.color.setHex(0xFFFFFF);
             points += 1;
         }
 
