@@ -50,7 +50,6 @@ document.getElementById("play").onclick = async function () {
     score.style.opacity = 1;
 }
 
-
 /**
  * Define a function to load local file into the
  * application to set up
@@ -67,15 +66,13 @@ function readTextFile(file, callback) {
     rawFile.send(null);
 }
 
+var numJsonFrames = 0;
+var jsonMotion = null;
 /**
  * Load motion JSON file into the scene
  * check the JSON variables 
  * 
  */
-
-var numJsonFrames = 0;
-var jsonMotion = null;
-
 readTextFile("motion.json", function (text) {
     jsonMotion = JSON.parse(text);
     numJsonFrames = Object.keys(jsonMotion).length;
@@ -109,7 +106,30 @@ var hands = null;
 var meshLH = null;
 var meshRH = null;
 
-
+/**
+ * this is the box detection we'd seen online
+ * 
+ * @param {a} a one of the boxes used to interact 
+ * @param {d} d the other box to interact
+ */
+function checkTouching(a, d) {
+    let b1 = a.position.y - a.geometry.parameters.height / 2;
+    let t1 = a.position.y + a.geometry.parameters.height / 2;
+    let r1 = a.position.x + a.geometry.parameters.width / 2;
+    let l1 = a.position.x - a.geometry.parameters.width / 2;
+    let f1 = a.position.z - a.geometry.parameters.depth / 2;
+    let B1 = a.position.z + a.geometry.parameters.depth / 2;
+    let b2 = d.position.y - d.geometry.parameters.height / 2;
+    let t2 = d.position.y + d.geometry.parameters.height / 2;
+    let r2 = d.position.x + d.geometry.parameters.width / 2;
+    let l2 = d.position.x - d.geometry.parameters.width / 2;
+    let f2 = d.position.z - d.geometry.parameters.depth / 2;
+    let B2 = d.position.z + d.geometry.parameters.depth / 2;
+    if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
+        return false;
+    }
+    return true;
+}
 
 /**
  * Start the game when the user cliks "Play" from the start menu
@@ -160,13 +180,11 @@ function start() {
     let cleared = false;
     let meshes = [];
 
-
     playMusic(camera);
 
     // Create the joints in the scene to indicate the hands for the interactions 
-
     hands = new THREE.Object3D();
- 
+
     var SphereGeometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
 
     // Create a ball for the left hand
@@ -187,7 +205,6 @@ function start() {
      * Run the bulk of the game code spawning in boxes and
      * setting world space meshes
      */
-
     async function run() {
         while (true) {
             if (!cleared) {
@@ -214,8 +231,6 @@ function start() {
 
     floor();
     run();
-    
-
 
     /**
      * Create the boxes indicating a beat for the user to hit
@@ -240,31 +255,6 @@ function start() {
 
         return target;
     }
-
-
-    /**
-     * this is the box detection we'd seen online 
-     * @param {a} a one of the boxes used to interact 
-     * @param {d} d the other box to interact
-     */
-    function checkTouching(a, d) {
-        let b1 = a.position.y - a.geometry.parameters.height / 2;
-        let t1 = a.position.y + a.geometry.parameters.height / 2;
-        let r1 = a.position.x + a.geometry.parameters.width / 2;
-        let l1 = a.position.x - a.geometry.parameters.width / 2;
-        let f1 = a.position.z - a.geometry.parameters.depth / 2;
-        let B1 = a.position.z + a.geometry.parameters.depth / 2;
-        let b2 = d.position.y - d.geometry.parameters.height / 2;
-        let t2 = d.position.y + d.geometry.parameters.height / 2;
-        let r2 = d.position.x + d.geometry.parameters.width / 2;
-        let l2 = d.position.x - d.geometry.parameters.width / 2;
-        let f2 = d.position.z - d.geometry.parameters.depth / 2;
-        let B2 = d.position.z + d.geometry.parameters.depth / 2;
-        if (t1 < b2 || r1 < l2 || b1 > t2 || l1 > r2 || f1 > B2 || B1 < f2) {
-            return false;
-        }
-        return true;
-    }  
 
     /**
      * Create the floor object in the world space to
@@ -296,8 +286,6 @@ function start() {
         meshRH.position.z = skeletonFrame.joints[kinectron.HANDRIGHT].cameraZ;
     }
 
-  
-
     var iFrame = 0;
 
     /**
@@ -322,7 +310,7 @@ function start() {
             cleared = false;
         }
 
-        if (checkTouching(meshRH,box1)) {
+        if (checkTouching(meshRH, box1)) {
             meshRH.material.color.setHex(0xFFFFFF);
             box1.material.color.setHex(0xFFFFFF);
             points += 1;
